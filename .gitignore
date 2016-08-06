@@ -1,33 +1,53 @@
-#Android generated
-bin
-gen
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
 
-#Eclipse
-.project
-.classpath
-.settings
+# Folder config file
+Desktop.ini
 
-#IntelliJ IDEA
-.idea
-*.iml
-*.ipr
-*.iws
-out
+# Recycle Bin used on file shares
+$RECYCLE.BIN/
 
-#Maven
-target
-release.properties
-pom.xml.*
+# Windows Installer files
+*.cab
+*.msi
+*.msm
+*.msp
 
-#Ant
-build.xml
-local.properties
-proguard.cfg
+# Windows shortcuts
+*.lnk
 
-#OSX
+# =========================
+# Operating System Files
+# =========================
+
+# OSX
+# =========================
+
 .DS_Store
+.AppleDouble
+.LSOverride
 
-#Gradle
+# Thumbnails
+._*
+
+# Files that might appear in the root of a volume
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+
+# Directories potentially created on remote AFP share
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+.idea
 .gradle
 build
-
+local.properties
+.iml
