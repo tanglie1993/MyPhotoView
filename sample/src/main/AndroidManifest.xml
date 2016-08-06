@@ -25,11 +25,6 @@
 
         <activity android:name=".RotationSampleActivity"/>
 
-        <activity android:name=".PicassoSampleActivity"/>
-
-        <activity android:name=".ActivityTransitionActivity"/>
-
-        <activity android:name=".ActivityTransitionToActivity"/>
     </application>
 
 </manifest>
