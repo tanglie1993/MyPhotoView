@@ -30,7 +30,9 @@ public class TestActivity extends Activity {
                 if (Float.isNaN(scaleFactor) || Float.isInfinite(scaleFactor))
                     return false;
 
-                TestActivity.this.onScale(scaleFactor, detector.getFocusX(), detector.getFocusY());
+                int centerX = (imageView.getWidth()) / 2;
+                int centerY = (imageView.getHeight()) / 2;
+                TestActivity.this.onScale(scaleFactor, centerX, centerY);
                 return true;
             }
 
