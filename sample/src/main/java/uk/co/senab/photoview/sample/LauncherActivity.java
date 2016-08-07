@@ -28,7 +28,7 @@ import android.widget.TextView;
 
 public class LauncherActivity extends AppCompatActivity {
 
-    public static final String[] options = {"Simple Sample", "ViewPager Sample", "Rotation Sample"};
+    public static final String[] options = {"Simple Sample", "ViewPager Sample", "Rotation Sample", "Test"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +64,9 @@ public class LauncherActivity extends AppCompatActivity {
                             break;
                         case 2:
                             c = RotationSampleActivity.class;
+                            break;
+                        case 3:
+                            c = TestActivity.class;
                             break;
                     }
 
