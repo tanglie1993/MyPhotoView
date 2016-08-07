@@ -16,21 +16,25 @@ public class TestImageView extends ImageView {
 
     public TestImageView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
+        init(context);
     }
 
     public TestImageView(Context context) {
         super(context);
+        init(context);
     }
 
     public TestImageView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        init(context);
     }
 
     public TestImageView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        init(context);
     }
 
-    public void init(Context context) {
+    private void init(Context context) {
         Matrix matrix = new Matrix();
         ScaleGestureDetector.OnScaleGestureListener mScaleListener = new ScaleGestureDetector.OnScaleGestureListener() {
 
@@ -65,7 +69,6 @@ public class TestImageView extends ImageView {
     public void onScale(float scaleFactor, float focusX, float focusY) {
         System.out.println(String.format("onScale: scale: %.2f. fX: %.2f. fY: %.2f",
                 scaleFactor, focusX, focusY));
-//        matrix.postScale(scaleFactor, scaleFactor, focusX, focusY);
         Matrix matrix = new Matrix (getImageMatrix());
         matrix.postScale(scaleFactor, scaleFactor, focusX, focusY);
         setImageMatrix(matrix);
