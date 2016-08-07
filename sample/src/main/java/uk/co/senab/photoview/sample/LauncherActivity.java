@@ -26,6 +26,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import uk.co.senab.photoview.sample.test.TestActivity;
+
 public class LauncherActivity extends AppCompatActivity {
 
     public static final String[] options = {"Simple Sample", "ViewPager Sample", "Rotation Sample", "Test"};

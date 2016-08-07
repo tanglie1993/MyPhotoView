@@ -1,26 +1,26 @@
-package uk.co.senab.photoview.sample;
+package uk.co.senab.photoview.sample.test;
 
 import android.graphics.Matrix;
 import android.os.Bundle;
 import android.app.Activity;
-import android.util.Log;
-import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.widget.ImageView;
+
+import uk.co.senab.photoview.sample.R;
 
 
 public class TestActivity extends Activity {
 
     private ScaleGestureDetector detector;
-    private ImageView imageView;
+    private TestImageView imageView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test);
         Matrix matrix = new Matrix();
-        imageView = (ImageView) findViewById(R.id.imageView);
+        imageView = (TestImageView) findViewById(R.id.imageView);
         ScaleGestureDetector.OnScaleGestureListener mScaleListener = new ScaleGestureDetector.OnScaleGestureListener() {
 
             @Override
