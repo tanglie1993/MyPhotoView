@@ -17,10 +17,4 @@ public class TestActivity extends Activity {
         setContentView(R.layout.activity_test);
         imageView = (TestImageView) findViewById(R.id.imageView);
     }
-
-    @Override
-    public boolean onTouchEvent(MotionEvent ev) {
-        imageView.onTouchEvent(ev);
-        return super.onTouchEvent(ev);
-    }
 }

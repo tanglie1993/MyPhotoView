@@ -5,12 +5,13 @@ import android.graphics.Matrix;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
+import android.view.View;
 import android.widget.ImageView;
 
 /**
  * Created by Administrator on 2016/8/7 0007.
  */
-public class TestImageView extends ImageView {
+public class TestImageView extends ImageView implements View.OnTouchListener {
 
     private ScaleGestureDetector detector;
 
@@ -61,7 +62,7 @@ public class TestImageView extends ImageView {
                 // NO-OP
             }
         };
-        detector = new ScaleGestureDetector(context, mScaleListener);
+        detector = new ScaleGestureDetector(context.getApplicationContext(), mScaleListener);
         setImageMatrix(matrix);
     }
 
@@ -77,7 +78,13 @@ public class TestImageView extends ImageView {
 
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
+        System.out.println("motionEvent");
         detector.onTouchEvent(ev);
-        return super.onTouchEvent(ev);
+        return true;
+    }
+
+    public boolean onTouch(View v, MotionEvent event) {
+        detector.onTouchEvent(event);
+        return true;
     }
 }
