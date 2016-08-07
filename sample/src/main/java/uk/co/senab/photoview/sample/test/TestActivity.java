@@ -19,8 +19,12 @@ public class TestActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test);
-        Matrix matrix = new Matrix();
         imageView = (TestImageView) findViewById(R.id.imageView);
+        imageView.init(this);
+    }
+
+    private void init() {
+        Matrix matrix = new Matrix();
         ScaleGestureDetector.OnScaleGestureListener mScaleListener = new ScaleGestureDetector.OnScaleGestureListener() {
 
             @Override
@@ -63,7 +67,8 @@ public class TestActivity extends Activity {
 
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
-        detector.onTouchEvent(ev);
+//        detector.onTouchEvent(ev);
+        imageView.onTouchEvent(ev);
         return super.onTouchEvent(ev);
     }
 }
