@@ -10,7 +10,6 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:id="@+id/imageView"
-        android:scaleType="matrix"
         android:src="@drawable/wallpaper"/>
 
 </RelativeLayout>

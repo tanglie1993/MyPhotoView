@@ -11,7 +11,7 @@ import android.widget.ImageView;
 /**
  * Created by Administrator on 2016/8/7 0007.
  */
-public class TestImageView extends ImageView implements View.OnTouchListener {
+public class TestImageView extends ImageView {
 
     private ScaleGestureDetector detector;
 
@@ -36,6 +36,7 @@ public class TestImageView extends ImageView implements View.OnTouchListener {
     }
 
     private void init(Context context) {
+        setScaleType(ScaleType.MATRIX);
         Matrix matrix = new Matrix();
         ScaleGestureDetector.OnScaleGestureListener mScaleListener = new ScaleGestureDetector.OnScaleGestureListener() {
 
@@ -70,21 +71,16 @@ public class TestImageView extends ImageView implements View.OnTouchListener {
     public void onScale(float scaleFactor, float focusX, float focusY) {
         System.out.println(String.format("onScale: scale: %.2f. fX: %.2f. fY: %.2f",
                 scaleFactor, focusX, focusY));
-        Matrix matrix = new Matrix (getImageMatrix());
+        Matrix matrix = new Matrix(getImageMatrix());
         matrix.postScale(scaleFactor, scaleFactor, focusX, focusY);
         setImageMatrix(matrix);
+        System.out.println(matrix.toShortString());
         invalidate();
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
-        System.out.println("motionEvent");
         detector.onTouchEvent(ev);
-        return true;
-    }
-
-    public boolean onTouch(View v, MotionEvent event) {
-        detector.onTouchEvent(event);
         return true;
     }
 }
