@@ -2,16 +2,10 @@ package uk.co.senab.photoview.sample.test;
 
 import android.content.Context;
 import android.graphics.Matrix;
-import android.graphics.Rect;
 import android.graphics.RectF;
-import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
-import android.util.Log;
-import android.view.DragEvent;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
-import android.view.View;
-import android.view.ViewConfiguration;
 import android.widget.ImageView;
 
 /**
@@ -24,6 +18,8 @@ public class TestImageView extends ImageView {
     private Coordinate lastCoordinate = new Coordinate();
 
     private boolean isDragging;
+
+    private RectF displayRect = new RectF();
 
     public TestImageView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
@@ -50,14 +46,19 @@ public class TestImageView extends ImageView {
         Matrix matrix = new Matrix();
         setImageMatrix(matrix);
         detector = new ScaleGestureDetector(context.getApplicationContext(), mScaleListener);
+        displayRect.set(0, 0, getDrawable().getIntrinsicWidth(), getDrawable().getIntrinsicHeight());
     }
 
-
-
-
-    public void onScale(float scaleFactor, float focusX, float focusY) {
+    private void scale(float scaleFactor, float focusX, float focusY) {
         Matrix matrix = new Matrix(getImageMatrix());
         matrix.postScale(scaleFactor, scaleFactor, focusX, focusY);
+        setImageMatrix(matrix);
+        invalidate();
+    }
+
+    private void translate(float dx, float dy) {
+        Matrix matrix = new Matrix(getImageMatrix());
+        matrix.postTranslate(dx, dy);
         setImageMatrix(matrix);
         invalidate();
     }
@@ -74,10 +75,10 @@ public class TestImageView extends ImageView {
                 }
                 break;
             case MotionEvent.ACTION_MOVE:
-                if(isDragging){
+                if(isDragging && !hasExceededBounds()){
                     float dx = ev.getX() - lastCoordinate.x;
                     float dy = ev.getY() - lastCoordinate.y;
-                    scrollBy((int) -dx, (int) -dy);
+                    translate((int) dx, (int) dy);
                     lastCoordinate.x = ev.getX();
                     lastCoordinate.y = ev.getY();
                 }
@@ -104,15 +105,18 @@ public class TestImageView extends ImageView {
         public boolean onScale(ScaleGestureDetector detector) {
             float scaleFactor = detector.getScaleFactor();
 
-            if (Float.isNaN(scaleFactor) || Float.isInfinite(scaleFactor))
+            if (Float.isNaN(scaleFactor) || Float.isInfinite(scaleFactor)){
                 return false;
-
+            }
+            if(hasExceededBounds()){
+                return false;
+            }
 
             Coordinate scaleCenter = getScaleCenter();
 
             int centerX = (int) scaleCenter.x;
             int centerY = (int) scaleCenter.y;
-            TestImageView.this.onScale(scaleFactor, centerX, centerY);
+            TestImageView.this.scale(scaleFactor, centerX, centerY);
             return true;
         }
 
@@ -127,10 +131,23 @@ public class TestImageView extends ImageView {
         }
     };
 
+    private boolean hasExceededBounds(){
+        displayRect.set(0, 0, getDrawable().getIntrinsicWidth(), getDrawable().getIntrinsicHeight());
+        getImageMatrix().mapRect(displayRect);
+        System.out.println("displayRect.bottom: " + displayRect.bottom);
+        System.out.println("displayRect.top: " + displayRect.top);
+        System.out.println("displayRect.left: " + displayRect.left);
+        System.out.println("displayRect.right: " + displayRect.right);
+        if(displayRect.left > 0 || displayRect.right < getRight() - getLeft()
+                || displayRect.top > 0 || displayRect.bottom < getBottom() - getTop()){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
     private Coordinate getScaleCenter() {
 
-        RectF displayRect = new RectF();
-        displayRect.set(0, 0, getDrawable().getIntrinsicWidth(), getDrawable().getIntrinsicHeight());
         getImageMatrix().mapRect(displayRect);
 
         Line lineA = new Line();
