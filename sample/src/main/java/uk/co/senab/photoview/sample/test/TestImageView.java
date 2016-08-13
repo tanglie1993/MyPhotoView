@@ -4,16 +4,19 @@ import android.content.Context;
 import android.graphics.Matrix;
 import android.graphics.RectF;
 import android.util.AttributeSet;
+import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 /**
  * Created by Administrator on 2016/8/7 0007.
  */
 public class TestImageView extends ImageView {
 
-    private ScaleGestureDetector detector;
+    private ScaleGestureDetector scaleDetector;
+    private GestureDetector gestureDetector;
 
     private Coordinate lastCoordinate = new Coordinate();
 
@@ -41,11 +44,19 @@ public class TestImageView extends ImageView {
         init(context);
     }
 
-    private void init(Context context) {
+    private void init(final Context context) {
         setScaleType(ScaleType.MATRIX);
         Matrix matrix = new Matrix();
         setImageMatrix(matrix);
-        detector = new ScaleGestureDetector(context.getApplicationContext(), mScaleListener);
+        scaleDetector = new ScaleGestureDetector(context.getApplicationContext(), mScaleListener);
+        gestureDetector = new GestureDetector(context, new DefaultOnGestureListener());
+        gestureDetector.setOnDoubleTapListener(new DefaultOnDoubleTapListener() {
+            @Override
+            public boolean onDoubleTap(MotionEvent motionEvent) {
+                Toast.makeText(context, "doubleTap", Toast.LENGTH_SHORT).show();
+                return false;
+            }
+        });
         displayRect.set(0, 0, getDrawable().getIntrinsicWidth(), getDrawable().getIntrinsicHeight());
     }
 
@@ -71,7 +82,8 @@ public class TestImageView extends ImageView {
 
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
-        detector.onTouchEvent(ev);
+        scaleDetector.onTouchEvent(ev);
+        gestureDetector.onTouchEvent(ev);
         switch(ev.getAction()){
             case MotionEvent.ACTION_DOWN:
                 if(canDrag()){
