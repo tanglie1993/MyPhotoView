@@ -1,4 +1,4 @@
-package uk.co.senab.photoview.sample.test;
+package uk.co.senab.photoview.sample.test.listener;
 
 import android.view.GestureDetector;
 import android.view.MotionEvent;

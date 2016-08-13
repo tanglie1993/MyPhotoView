@@ -1,11 +1,11 @@
-package uk.co.senab.photoview.sample.test;
+package uk.co.senab.photoview.sample.test.entity;
 
 /**
  * Created by Administrator on 2016/8/13 0013.
  */
 public class Line {
-    Coordinate a;
-    Coordinate b;
+    public Coordinate a;
+    public Coordinate b;
 
     public Line() {
         this.a = new Coordinate();

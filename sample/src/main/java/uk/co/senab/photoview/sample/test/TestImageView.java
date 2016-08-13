@@ -10,6 +10,11 @@ import android.view.ScaleGestureDetector;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import uk.co.senab.photoview.sample.test.entity.Coordinate;
+import uk.co.senab.photoview.sample.test.entity.Line;
+import uk.co.senab.photoview.sample.test.listener.DefaultOnDoubleTapListener;
+import uk.co.senab.photoview.sample.test.listener.DefaultOnGestureListener;
+
 /**
  * Created by Administrator on 2016/8/7 0007.
  */
