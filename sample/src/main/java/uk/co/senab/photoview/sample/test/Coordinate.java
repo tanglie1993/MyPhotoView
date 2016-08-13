@@ -14,22 +14,12 @@ public class Coordinate {
         this.y = y;
     }
 
-    private float x;
-    private float y;
+    public float x;
+    public float y;
 
-    public float getX() {
-        return x;
-    }
-
-    public void setX(float x) {
-        this.x = x;
-    }
-
-    public float getY() {
-        return y;
-    }
-
-    public void setY(float y) {
-        this.y = y;
+    public static float distance(Coordinate a, Coordinate b){
+        float deltaX = Math.abs(a.x - b.x);
+        float deltaY = Math.abs(a.y - b.y);
+        return (float) Math.sqrt(deltaX * deltaX + deltaY * deltaY);
     }
 }
