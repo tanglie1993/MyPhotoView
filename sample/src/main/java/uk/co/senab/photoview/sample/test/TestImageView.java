@@ -1,5 +1,6 @@
 package uk.co.senab.photoview.sample.test;
 
+import android.animation.Animator;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Matrix;
@@ -61,15 +62,41 @@ public class TestImageView extends ImageView {
             @Override
             public boolean onDoubleTap(MotionEvent motionEvent) {
 
+                if (isAutomaticScaling) {
+                    return false;
+                }
+
                 ValueAnimator anim = ValueAnimator.ofFloat(1f, 1.5f);
                 anim.setDuration(200);
                 anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
 
                     private float lastAnimatedValue = 1;
+
                     @Override
                     public void onAnimationUpdate(ValueAnimator valueAnimator) {
                         scale((float) valueAnimator.getAnimatedValue() / lastAnimatedValue, (displayRect.left + displayRect.right) / 2, (displayRect.top + displayRect.bottom) / 2);
                         lastAnimatedValue = (float) valueAnimator.getAnimatedValue();
+                    }
+                });
+                anim.addListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animator) {
+                        isAutomaticScaling = true;
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animator) {
+                        isAutomaticScaling = false;
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animator) {
+                        isAutomaticScaling = false;
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animator) {
+
                     }
                 });
                 anim.start();
@@ -101,6 +128,9 @@ public class TestImageView extends ImageView {
 
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
+        if(isAutomaticScaling){
+            return true;
+        }
         scaleDetector.onTouchEvent(ev);
         gestureDetector.onTouchEvent(ev);
         switch(ev.getAction()){
@@ -140,6 +170,10 @@ public class TestImageView extends ImageView {
 
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
+            if(isAutomaticScaling){
+                return false;
+            }
+
             float scaleFactor = detector.getScaleFactor();
 
             if (Float.isNaN(scaleFactor) || Float.isInfinite(scaleFactor)){
@@ -186,7 +220,6 @@ public class TestImageView extends ImageView {
     }
 
     private boolean isExpanded() {
-        adjustDisplayRect();
         if(displayRect.bottom - displayRect.top > getBottom() - getTop()){
             return true;
         }else{
@@ -210,7 +243,7 @@ public class TestImageView extends ImageView {
     }
 
     private Coordinate getTowardOriginalScaleCenter() {
-        adjustDisplayRect();
+//        adjustDisplayRect();
 
         Line lineA = new Line();
         lineA.a = new Coordinate(0, 0);
@@ -241,11 +274,6 @@ public class TestImageView extends ImageView {
         }
 //        System.out.println("return D: " + Line.intersection(lineA, lineB).x + " " + Line.intersection(lineA, lineB).y);
         return Line.intersection(lineA, lineB);
-    }
-
-    private void adjustDisplayRect() {
-        displayRect.set(0, 0, getDrawable().getIntrinsicWidth(), getDrawable().getIntrinsicHeight());
-        getImageMatrix().mapRect(displayRect);
     }
 
 }
