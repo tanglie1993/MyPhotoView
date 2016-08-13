@@ -26,6 +26,7 @@ public class TestImageView extends ImageView {
 
     private Coordinate lastCoordinate = new Coordinate();
 
+    private int currentDegree;
     private boolean isDragging;
     private boolean isAutomaticScaling;
 
@@ -67,7 +68,7 @@ public class TestImageView extends ImageView {
                 return false;
             }
         });
-
+        rotate(20);
     }
 
     private void startScaleAnimation() {
@@ -113,20 +114,33 @@ public class TestImageView extends ImageView {
 //        System.out.println("scaleFactor: " + scaleFactor + " focuX: " + focusX + "focusY: " + focusY);
         Matrix matrix = new Matrix(getImageMatrix());
         matrix.postScale(scaleFactor, scaleFactor, focusX, focusY);
-        if(!hasExceededBounds(matrix)){
 //            System.out.println("!hasExceededBounds");
+        if(!hasExceededBounds(matrix)){
             setImageMatrix(matrix);
             invalidate();
         }
     }
 
     private void translate(float dx, float dy) {
+        System.out.println("displayRect.right: " + displayRect.right);
         Matrix matrix = new Matrix(getImageMatrix());
         matrix.postTranslate(dx, dy);
         if(!hasExceededBounds(matrix)){
             setImageMatrix(matrix);
             invalidate();
         }
+    }
+
+    private void rotate(int degree){
+        currentDegree += degree;
+        if(currentDegree >= 360){
+            currentDegree %= 360;
+        }
+        Matrix imageMatrix = getImageMatrix();
+        adjustDisplayRect();
+        imageMatrix.postRotate(degree, (displayRect.left + displayRect.right) / 2, (displayRect.top + displayRect.bottom) / 2);
+        setImageMatrix(imageMatrix);
+        System.out.println("dislayRect: " + displayRect.left + " " + displayRect.top + " " + displayRect.right + " " + displayRect.bottom);
     }
 
     @Override
@@ -164,9 +178,9 @@ public class TestImageView extends ImageView {
     }
 
     private boolean canDrag() {
-        float[] values = new float[9];
-        getImageMatrix().getValues(values);
-        return values[0] > 1;
+        adjustDisplayRect();
+        return displayRect.bottom > getBottom() - getTop() || displayRect.top < 0
+                || displayRect.left < 0 || displayRect.right > getRight() - getLeft();
     }
 
     private ScaleGestureDetector.OnScaleGestureListener scaleListener = new ScaleGestureDetector.OnScaleGestureListener() {
@@ -182,20 +196,28 @@ public class TestImageView extends ImageView {
             if (Float.isNaN(scaleFactor) || Float.isInfinite(scaleFactor)){
                 return false;
             }
-//            System.out.println("scaleFactor: " + scaleFactor);
-            if(isExpanded()){
-                if(isExpanding(scaleFactor)){
-                    scale(scaleFactor, detector.getFocusX(), detector.getFocusY());
+            System.out.println("scaleFactor: " + scaleFactor);
+            if(currentDegree == 0){
+                if(isExpanded()){
+                    if(isExpanding(scaleFactor)){
+                        scale(scaleFactor, detector.getFocusX(), detector.getFocusY());
+                    }else{
+                        scaleTowardOriginal(scaleFactor);
+                    }
                 }else{
-                    scaleTowardOriginal(scaleFactor);
+                    if(isExpanding(scaleFactor)){
+                        scaleTowardOriginal(scaleFactor);
+                    }else{
+                        scale(scaleFactor, detector.getFocusX(), detector.getFocusY());
+                    }
                 }
             }else{
-                if(isExpanding(scaleFactor)){
-                    scaleTowardOriginal(scaleFactor);
-                }else{
-                    scale(scaleFactor, detector.getFocusX(), detector.getFocusY());
-                }
+                adjustDisplayRect();
+                float centerX = (displayRect.left + displayRect.right) / 2;
+                float centerY = (displayRect.top + displayRect.bottom) / 2;
+                scale(scaleFactor, centerX, centerY);
             }
+
 
             return true;
         }
@@ -243,6 +265,12 @@ public class TestImageView extends ImageView {
         }else{
             return false;
         }
+    }
+
+    private void adjustDisplayRect() {
+        Matrix matrix = getImageMatrix();
+        displayRect.set(0, 0, getDrawable().getIntrinsicWidth(), getDrawable().getIntrinsicHeight());
+        matrix.mapRect(displayRect);
     }
 
     private Coordinate getTowardOriginalScaleCenter() {
