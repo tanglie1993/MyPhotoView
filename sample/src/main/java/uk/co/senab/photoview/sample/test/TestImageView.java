@@ -52,15 +52,20 @@ public class TestImageView extends ImageView {
     private void scale(float scaleFactor, float focusX, float focusY) {
         Matrix matrix = new Matrix(getImageMatrix());
         matrix.postScale(scaleFactor, scaleFactor, focusX, focusY);
-        setImageMatrix(matrix);
-        invalidate();
+        if(!hasExceededBounds(matrix)){
+            setImageMatrix(matrix);
+            invalidate();
+        }
     }
 
     private void translate(float dx, float dy) {
         Matrix matrix = new Matrix(getImageMatrix());
         matrix.postTranslate(dx, dy);
-        setImageMatrix(matrix);
-        invalidate();
+        if(!hasExceededBounds(matrix)){
+            setImageMatrix(matrix);
+            invalidate();
+        }
+
     }
 
     @Override
@@ -75,7 +80,7 @@ public class TestImageView extends ImageView {
                 }
                 break;
             case MotionEvent.ACTION_MOVE:
-                if(isDragging && !hasExceededBounds()){
+                if(isDragging){
                     float dx = ev.getX() - lastCoordinate.x;
                     float dy = ev.getY() - lastCoordinate.y;
                     translate((int) dx, (int) dy);
@@ -108,9 +113,6 @@ public class TestImageView extends ImageView {
             if (Float.isNaN(scaleFactor) || Float.isInfinite(scaleFactor)){
                 return false;
             }
-            if(hasExceededBounds()){
-                return false;
-            }
 
             Coordinate scaleCenter = getScaleCenter();
 
@@ -131,9 +133,9 @@ public class TestImageView extends ImageView {
         }
     };
 
-    private boolean hasExceededBounds(){
+    private boolean hasExceededBounds(Matrix matrix){
         displayRect.set(0, 0, getDrawable().getIntrinsicWidth(), getDrawable().getIntrinsicHeight());
-        getImageMatrix().mapRect(displayRect);
+        matrix.mapRect(displayRect);
         System.out.println("displayRect.bottom: " + displayRect.bottom);
         System.out.println("displayRect.top: " + displayRect.top);
         System.out.println("displayRect.left: " + displayRect.left);
