@@ -32,6 +32,8 @@ public class TestImageView extends ImageView {
 
     private RectF displayRect = new RectF();
 
+    private int imageHeightUpperLimit;
+
     public TestImageView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         init(context);
@@ -56,6 +58,7 @@ public class TestImageView extends ImageView {
         setScaleType(ScaleType.MATRIX);
         Matrix matrix = new Matrix();
         setImageMatrix(matrix);
+
         scaleDetector = new ScaleGestureDetector(context.getApplicationContext(), scaleListener);
         gestureDetector = new GestureDetector(context, new DefaultOnGestureListener());
         gestureDetector.setOnDoubleTapListener(new DefaultOnDoubleTapListener() {
@@ -69,6 +72,13 @@ public class TestImageView extends ImageView {
             }
         });
         rotate(20);
+
+        post(new Runnable() {
+            @Override
+            public void run() {
+                imageHeightUpperLimit = (getBottom() - getTop()) * 3;
+            }
+        });
     }
 
     private void startScaleAnimation() {
@@ -112,6 +122,10 @@ public class TestImageView extends ImageView {
 
     private void scale(float scaleFactor, float focusX, float focusY) {
 //        System.out.println("scaleFactor: " + scaleFactor + " focuX: " + focusX + "focusY: " + focusY);
+        adjustDisplayRect();
+        if(displayRect.bottom - displayRect.top > imageHeightUpperLimit && isExpanding(scaleFactor)){
+            return;
+        }
         Matrix matrix = new Matrix(getImageMatrix());
         matrix.postScale(scaleFactor, scaleFactor, focusX, focusY);
 //            System.out.println("!hasExceededBounds");
