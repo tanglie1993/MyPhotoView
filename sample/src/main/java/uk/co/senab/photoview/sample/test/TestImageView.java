@@ -50,9 +50,11 @@ public class TestImageView extends ImageView {
     }
 
     private void scale(float scaleFactor, float focusX, float focusY) {
+//        System.out.println("scaleFactor: " + scaleFactor + " focuX: " + focusX + "focusY: " + focusY);
         Matrix matrix = new Matrix(getImageMatrix());
         matrix.postScale(scaleFactor, scaleFactor, focusX, focusY);
         if(!hasExceededBounds(matrix)){
+//            System.out.println("!hasExceededBounds");
             setImageMatrix(matrix);
             invalidate();
         }
@@ -65,7 +67,6 @@ public class TestImageView extends ImageView {
             setImageMatrix(matrix);
             invalidate();
         }
-
     }
 
     @Override
@@ -113,12 +114,21 @@ public class TestImageView extends ImageView {
             if (Float.isNaN(scaleFactor) || Float.isInfinite(scaleFactor)){
                 return false;
             }
+            System.out.println("scaleFactor: " + scaleFactor);
+            if(isExpanded()){
+                if(isExpanding(scaleFactor)){
+                    scale(scaleFactor, detector.getFocusX(), detector.getFocusY());
+                }else{
+                    scaleTowardOriginal(scaleFactor);
+                }
+            }else{
+                if(isExpanding(scaleFactor)){
+                    scaleTowardOriginal(scaleFactor);
+                }else{
+                    scale(scaleFactor, detector.getFocusX(), detector.getFocusY());
+                }
+            }
 
-            Coordinate scaleCenter = getScaleCenter();
-
-            int centerX = (int) scaleCenter.x;
-            int centerY = (int) scaleCenter.y;
-            TestImageView.this.scale(scaleFactor, centerX, centerY);
             return true;
         }
 
@@ -133,13 +143,34 @@ public class TestImageView extends ImageView {
         }
     };
 
+    private void scaleTowardOriginal(float scaleFactor) {
+        Coordinate scaleCenter = getTowardOriginalScaleCenter();
+        int centerX = (int) scaleCenter.x;
+        int centerY = (int) scaleCenter.y;
+        TestImageView.this.scale(scaleFactor, centerX, centerY);
+    }
+
+    private boolean isExpanding(float scaleFactor) {
+        return scaleFactor > 1;
+    }
+
+    private boolean isExpanded() {
+        displayRect.set(0, 0, getDrawable().getIntrinsicWidth(), getDrawable().getIntrinsicHeight());
+        getImageMatrix().mapRect(displayRect);
+        if(displayRect.bottom - displayRect.top > getBottom() - getTop()){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
     private boolean hasExceededBounds(Matrix matrix){
         displayRect.set(0, 0, getDrawable().getIntrinsicWidth(), getDrawable().getIntrinsicHeight());
         matrix.mapRect(displayRect);
-        System.out.println("displayRect.bottom: " + displayRect.bottom);
-        System.out.println("displayRect.top: " + displayRect.top);
-        System.out.println("displayRect.left: " + displayRect.left);
-        System.out.println("displayRect.right: " + displayRect.right);
+//        System.out.println("displayRect.bottom: " + displayRect.bottom);
+//        System.out.println("displayRect.top: " + displayRect.top);
+//        System.out.println("displayRect.left: " + displayRect.left);
+//        System.out.println("displayRect.right: " + displayRect.right);
         if(displayRect.left > 0 || displayRect.right < getRight() - getLeft()
                 || displayRect.top > 0 || displayRect.bottom < getBottom() - getTop()){
             return true;
@@ -148,7 +179,7 @@ public class TestImageView extends ImageView {
         }
     }
 
-    private Coordinate getScaleCenter() {
+    private Coordinate getTowardOriginalScaleCenter() {
 
         getImageMatrix().mapRect(displayRect);
 
