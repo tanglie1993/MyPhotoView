@@ -79,7 +79,7 @@ public class TestImageView extends ImageView {
                     float dy = ev.getY() - lastCoordinate.y;
                     scrollBy((int) -dx, (int) -dy);
                     lastCoordinate.x = ev.getX();
-                    lastCoordinate.x = ev.getY();
+                    lastCoordinate.y = ev.getY();
                 }
                 break;
             case MotionEvent.ACTION_UP:
@@ -141,26 +141,26 @@ public class TestImageView extends ImageView {
         lineB.a = new Coordinate(getRight() - getLeft(), 0);
         lineB.b = new Coordinate(displayRect.right, displayRect.top);
 
-        System.out.println("lineA.a.x: " + lineA.a.x + " lineA.a.y " + lineA.a.y);
-        System.out.println("lineA.b.x: " + lineA.b.x + " lineA.b.y " + lineA.b.y);
-        System.out.println("lineB.a.x: " + lineB.a.x + " lineB.a.y " + lineB.a.y);
-        System.out.println("lineB.b.x: " + lineB.b.x + " lineB.b.y " + lineB.b.y);
-        System.out.println("Coordinate.distance(lineA.a, lineA.b) " + Coordinate.distance(lineA.a, lineA.b));
-        System.out.println("Coordinate.distance(lineB.a, lineB.b) " +   Coordinate.distance(lineB.a, lineB.b));
+//        System.out.println("lineA.a.x: " + lineA.a.x + " lineA.a.y " + lineA.a.y);
+//        System.out.println("lineA.b.x: " + lineA.b.x + " lineA.b.y " + lineA.b.y);
+//        System.out.println("lineB.a.x: " + lineB.a.x + " lineB.a.y " + lineB.a.y);
+//        System.out.println("lineB.b.x: " + lineB.b.x + " lineB.b.y " + lineB.b.y);
+//        System.out.println("Coordinate.distance(lineA.a, lineA.b) " + Coordinate.distance(lineA.a, lineA.b));
+//        System.out.println("Coordinate.distance(lineB.a, lineB.b) " +   Coordinate.distance(lineB.a, lineB.b));
 
         if(Coordinate.distance(lineA.a, lineA.b) < 1 && Coordinate.distance(lineB.a, lineB.b) < 1){
-            System.out.println("return A: " + (getRight() - getLeft()) / 2 + " " + (getBottom() - getTop()) / 2);
+//            System.out.println("return A: " + (getRight() - getLeft()) / 2 + " " + (getBottom() - getTop()) / 2);
             return new Coordinate((getRight() - getLeft()) / 2, (getBottom() - getTop()) / 2);
         }
         if(Coordinate.distance(lineA.a, lineA.b) < 1){
-            System.out.println("return B: " + lineA.a.x + " " + lineA.a.y);
+//            System.out.println("return B: " + lineA.a.x + " " + lineA.a.y);
             return lineA.a;
         }
         if(Coordinate.distance(lineB.a, lineB.b) < 1){
-            System.out.println("return C: " + lineB.a.x + " " + lineB.a.y);
+//            System.out.println("return C: " + lineB.a.x + " " + lineB.a.y);
             return lineB.a;
         }
-        System.out.println("return D: " + Line.intersection(lineA, lineB).x + " " + Line.intersection(lineA, lineB).y);
+//        System.out.println("return D: " + Line.intersection(lineA, lineB).x + " " + Line.intersection(lineA, lineB).y);
         return Line.intersection(lineA, lineB);
     }
 
