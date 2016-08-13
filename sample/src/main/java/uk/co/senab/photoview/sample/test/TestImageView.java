@@ -10,7 +10,6 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import uk.co.senab.photoview.sample.test.entity.Coordinate;
 import uk.co.senab.photoview.sample.test.entity.Line;
@@ -56,55 +55,59 @@ public class TestImageView extends ImageView {
         setScaleType(ScaleType.MATRIX);
         Matrix matrix = new Matrix();
         setImageMatrix(matrix);
-        scaleDetector = new ScaleGestureDetector(context.getApplicationContext(), mScaleListener);
+        scaleDetector = new ScaleGestureDetector(context.getApplicationContext(), scaleListener);
         gestureDetector = new GestureDetector(context, new DefaultOnGestureListener());
         gestureDetector.setOnDoubleTapListener(new DefaultOnDoubleTapListener() {
             @Override
             public boolean onDoubleTap(MotionEvent motionEvent) {
-
                 if (isAutomaticScaling) {
                     return false;
                 }
-
-                ValueAnimator anim = ValueAnimator.ofFloat(1f, 1.5f);
-                anim.setDuration(200);
-                anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-
-                    private float lastAnimatedValue = 1;
-
-                    @Override
-                    public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                        scale((float) valueAnimator.getAnimatedValue() / lastAnimatedValue, (displayRect.left + displayRect.right) / 2, (displayRect.top + displayRect.bottom) / 2);
-                        lastAnimatedValue = (float) valueAnimator.getAnimatedValue();
-                    }
-                });
-                anim.addListener(new Animator.AnimatorListener() {
-                    @Override
-                    public void onAnimationStart(Animator animator) {
-                        isAutomaticScaling = true;
-                    }
-
-                    @Override
-                    public void onAnimationEnd(Animator animator) {
-                        isAutomaticScaling = false;
-                    }
-
-                    @Override
-                    public void onAnimationCancel(Animator animator) {
-                        isAutomaticScaling = false;
-                    }
-
-                    @Override
-                    public void onAnimationRepeat(Animator animator) {
-
-                    }
-                });
-                anim.start();
+                startScaleAnimation();
                 return false;
             }
         });
 
     }
+
+    private void startScaleAnimation() {
+        ValueAnimator anim = ValueAnimator.ofFloat(1f, 1.5f);
+        anim.setDuration(200);
+        anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+
+            private float lastAnimatedValue = 1;
+
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                scale((float) valueAnimator.getAnimatedValue() / lastAnimatedValue, (displayRect.left + displayRect.right) / 2, (displayRect.top + displayRect.bottom) / 2);
+                lastAnimatedValue = (float) valueAnimator.getAnimatedValue();
+            }
+        });
+        anim.addListener(animatorListener);
+        anim.start();
+    }
+
+    private Animator.AnimatorListener animatorListener = new Animator.AnimatorListener() {
+        @Override
+        public void onAnimationStart(Animator animator) {
+            isAutomaticScaling = true;
+        }
+
+        @Override
+        public void onAnimationEnd(Animator animator) {
+            isAutomaticScaling = false;
+        }
+
+        @Override
+        public void onAnimationCancel(Animator animator) {
+            isAutomaticScaling = false;
+        }
+
+        @Override
+        public void onAnimationRepeat(Animator animator) {
+
+        }
+    };
 
     private void scale(float scaleFactor, float focusX, float focusY) {
 //        System.out.println("scaleFactor: " + scaleFactor + " focuX: " + focusX + "focusY: " + focusY);
@@ -166,7 +169,7 @@ public class TestImageView extends ImageView {
         return values[0] > 1;
     }
 
-    private ScaleGestureDetector.OnScaleGestureListener mScaleListener = new ScaleGestureDetector.OnScaleGestureListener() {
+    private ScaleGestureDetector.OnScaleGestureListener scaleListener = new ScaleGestureDetector.OnScaleGestureListener() {
 
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
@@ -179,7 +182,7 @@ public class TestImageView extends ImageView {
             if (Float.isNaN(scaleFactor) || Float.isInfinite(scaleFactor)){
                 return false;
             }
-            System.out.println("scaleFactor: " + scaleFactor);
+//            System.out.println("scaleFactor: " + scaleFactor);
             if(isExpanded()){
                 if(isExpanding(scaleFactor)){
                     scale(scaleFactor, detector.getFocusX(), detector.getFocusY());
