@@ -1,5 +1,6 @@
 package uk.co.senab.photoview.sample.test;
 
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Matrix;
 import android.graphics.RectF;
@@ -26,6 +27,7 @@ public class TestImageView extends ImageView {
     private Coordinate lastCoordinate = new Coordinate();
 
     private boolean isDragging;
+    private boolean isAutomaticScaling;
 
     private RectF displayRect = new RectF();
 
@@ -58,11 +60,23 @@ public class TestImageView extends ImageView {
         gestureDetector.setOnDoubleTapListener(new DefaultOnDoubleTapListener() {
             @Override
             public boolean onDoubleTap(MotionEvent motionEvent) {
-                Toast.makeText(context, "doubleTap", Toast.LENGTH_SHORT).show();
+
+                ValueAnimator anim = ValueAnimator.ofFloat(1f, 1.5f);
+                anim.setDuration(200);
+                anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+
+                    private float lastAnimatedValue = 1;
+                    @Override
+                    public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                        scale((float) valueAnimator.getAnimatedValue() / lastAnimatedValue, (displayRect.left + displayRect.right) / 2, (displayRect.top + displayRect.bottom) / 2);
+                        lastAnimatedValue = (float) valueAnimator.getAnimatedValue();
+                    }
+                });
+                anim.start();
                 return false;
             }
         });
-        displayRect.set(0, 0, getDrawable().getIntrinsicWidth(), getDrawable().getIntrinsicHeight());
+
     }
 
     private void scale(float scaleFactor, float focusX, float focusY) {
@@ -172,8 +186,7 @@ public class TestImageView extends ImageView {
     }
 
     private boolean isExpanded() {
-        displayRect.set(0, 0, getDrawable().getIntrinsicWidth(), getDrawable().getIntrinsicHeight());
-        getImageMatrix().mapRect(displayRect);
+        adjustDisplayRect();
         if(displayRect.bottom - displayRect.top > getBottom() - getTop()){
             return true;
         }else{
@@ -197,8 +210,7 @@ public class TestImageView extends ImageView {
     }
 
     private Coordinate getTowardOriginalScaleCenter() {
-
-        getImageMatrix().mapRect(displayRect);
+        adjustDisplayRect();
 
         Line lineA = new Line();
         lineA.a = new Coordinate(0, 0);
@@ -229,6 +241,11 @@ public class TestImageView extends ImageView {
         }
 //        System.out.println("return D: " + Line.intersection(lineA, lineB).x + " " + Line.intersection(lineA, lineB).y);
         return Line.intersection(lineA, lineB);
+    }
+
+    private void adjustDisplayRect() {
+        displayRect.set(0, 0, getDrawable().getIntrinsicWidth(), getDrawable().getIntrinsicHeight());
+        getImageMatrix().mapRect(displayRect);
     }
 
 }
