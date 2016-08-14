@@ -210,17 +210,17 @@ public class TestImageView extends ImageView {
 
     private boolean canDrag(RectF rect) {
         if(rect.bottom > getOriginalImageBottom() - getOriginalImageTop() && rect.top < 0){
-            if(rect.left > 0 && rect.right < getOriginalImageRight() - getOriginalImageLeft()){
+            if(rect.left > 0 && rect.right < getOriginalImageRight()){
                 return true;
-            }else if(rect.left < 0 && rect.right > getOriginalImageRight() - getOriginalImageLeft()) {
+            }else if(rect.left < 0 && rect.right > getOriginalImageRight()) {
                 return true;
             }else{
                 return false;
             }
         }else if(rect.left < 0 && rect.right > getOriginalImageRight() - getOriginalImageLeft()){
-            if (rect.top > 0 && rect.bottom < getOriginalImageBottom() - getOriginalImageTop()){
+            if (rect.top > 0 && rect.bottom < getOriginalImageBottom()){
                 return true;
-            }else if (rect.top < 0 && rect.bottom > getOriginalImageBottom() - getOriginalImageTop()){
+            }else if (rect.top < 0 && rect.bottom > getOriginalImageBottom()){
                 return true;
             }else{
                 return false;
