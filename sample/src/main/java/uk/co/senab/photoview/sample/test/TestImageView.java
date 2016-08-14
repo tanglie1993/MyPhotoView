@@ -226,13 +226,16 @@ public class TestImageView extends ImageView {
                     }
                 }
             }else{
-                adjustDisplayRect();
-                float centerX = (displayRect.left + displayRect.right) / 2;
-                float centerY = (displayRect.top + displayRect.bottom) / 2;
-                scale(scaleFactor, centerX, centerY);
+                if(isExpanding(scaleFactor)){
+                    adjustDisplayRect();
+                    float centerX = (displayRect.left + displayRect.right) / 2;
+                    float centerY = (displayRect.top + displayRect.bottom) / 2;
+                    scale(scaleFactor, centerX, centerY);
+                }else if(canTiltedImageZoomOut()){
+                    Coordinate center = getTiltedImageZoomOutCenter();
+                    scale(scaleFactor, center.x, center.y);
+                }
             }
-
-
             return true;
         }
 
@@ -246,6 +249,53 @@ public class TestImageView extends ImageView {
             // NO-OP
         }
     };
+
+    private boolean canTiltedImageZoomOut() {
+        adjustDisplayRect();
+        int fixedAngleCount = 0;
+        if(displayRect.bottom > getTop() - getBottom() && displayRect.bottom < getTop() - getBottom() + 1){
+            fixedAngleCount++;
+        }
+        if(displayRect.top < 0 && displayRect.top > -1){
+            fixedAngleCount++;
+        }
+        if(displayRect.right > getRight() - getLeft() && displayRect.right < getRight() - getLeft() + 1){
+            fixedAngleCount++;
+        }
+        if(displayRect.left < 0 && displayRect.left > -1){
+            fixedAngleCount++;
+        }
+        return fixedAngleCount < 2;
+    }
+
+    private Coordinate getTiltedImageZoomOutCenter() {
+        adjustDisplayRect();
+        int tempDegree = currentDegree % 90;
+        double tan = Math.tan(tempDegree);
+        if(displayRect.bottom > getTop() - getBottom() && displayRect.bottom < getTop() - getBottom() + 1){
+            float x = (float) (displayRect.left + (displayRect.right - displayRect.left) * tan / (1 + tan));
+            float y = displayRect.bottom;
+            return new Coordinate(x, y);
+        }
+        if(displayRect.top < 0 && displayRect.top > -1){
+            float x = (float) (displayRect.left + (displayRect.right - displayRect.left) * 1 / (1 + tan));
+            float y = displayRect.top;
+            return new Coordinate(x, y);
+        }
+        if(displayRect.right > getRight() - getLeft() && displayRect.right < getRight() - getLeft() + 1){
+            float x = displayRect.right;
+            float y = (float) (displayRect.top + (displayRect.bottom - displayRect.top) * 1 / (1 + tan));
+            return new Coordinate(x, y);
+        }
+        if(displayRect.left < 0 && displayRect.left > -1){
+            float x = displayRect.left;
+            float y = (float) (displayRect.top + (displayRect.bottom - displayRect.top) * tan / (1 + tan));
+            return new Coordinate(x, y);
+        }
+        float centerX = (displayRect.left + displayRect.right) / 2;
+        float centerY = (displayRect.top + displayRect.bottom) / 2;
+        return new Coordinate(centerX, centerY);
+    }
 
     private void scaleTowardOriginal(float scaleFactor) {
         Coordinate scaleCenter = getTowardOriginalScaleCenter();
