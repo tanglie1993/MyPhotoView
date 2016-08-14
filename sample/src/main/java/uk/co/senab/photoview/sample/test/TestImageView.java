@@ -21,6 +21,11 @@ import uk.co.senab.photoview.sample.test.listener.DefaultOnGestureListener;
  */
 public class TestImageView extends ImageView {
 
+    private int originalImageBottom;
+    private int originalImageTop;
+    private int originalImageLeft;
+    private int originalImageRight;
+
     private ScaleGestureDetector scaleDetector;
     private GestureDetector gestureDetector;
 
@@ -76,7 +81,11 @@ public class TestImageView extends ImageView {
         post(new Runnable() {
             @Override
             public void run() {
-                imageHeightUpperLimit = (getBottom() - getTop()) * 3;
+                imageHeightUpperLimit = (getOriginalImageBottom() - getOriginalImageTop()) * 3;
+                originalImageBottom = getTop() + getDrawable().getIntrinsicHeight();
+                originalImageTop = getTop();
+                originalImageLeft = getLeft();
+                originalImageRight = getLeft() + getDrawable().getIntrinsicWidth();
             }
         });
     }
@@ -166,7 +175,8 @@ public class TestImageView extends ImageView {
         gestureDetector.onTouchEvent(ev);
         switch(ev.getAction()){
             case MotionEvent.ACTION_DOWN:
-                if(canDrag()){
+                adjustDisplayRect();
+                if(canDrag(displayRect)){
                     isDragging = true;
                     lastCoordinate.x = ev.getX();
                     lastCoordinate.y = ev.getY();
@@ -191,10 +201,25 @@ public class TestImageView extends ImageView {
         return true;
     }
 
-    private boolean canDrag() {
-        adjustDisplayRect();
-        return displayRect.bottom > getBottom() - getTop() || displayRect.top < 0
-                || displayRect.left < 0 || displayRect.right > getRight() - getLeft();
+    private boolean canDrag(RectF rect) {
+        if(rect.bottom > getOriginalImageBottom() - getOriginalImageTop() && rect.top < 0){
+            if(rect.left > 0 && rect.right < getOriginalImageRight() - getOriginalImageLeft()){
+                return true;
+            }else if(rect.left < 0 && rect.right > getOriginalImageRight() - getOriginalImageLeft()) {
+                return true;
+            }else{
+                return false;
+            }
+        }else if(rect.left < 0 && rect.right > getOriginalImageRight() - getOriginalImageLeft()){
+            if (rect.top > 0 && rect.bottom < getOriginalImageBottom() - getOriginalImageTop()){
+                return true;
+            }else if (rect.top < 0 && rect.bottom > getOriginalImageBottom() - getOriginalImageTop()){
+                return true;
+            }else{
+                return false;
+            }
+        }
+        return false;
     }
 
     private ScaleGestureDetector.OnScaleGestureListener scaleListener = new ScaleGestureDetector.OnScaleGestureListener() {
@@ -226,14 +251,14 @@ public class TestImageView extends ImageView {
                     }
                 }
             }else{
-                if(isExpanding(scaleFactor)){
+                if(getFixedAngleCount() == 1){
+                    Coordinate center = getTiltedImageZoomOutCenter();
+                    scale(scaleFactor, center.x, center.y);
+                }else{
                     adjustDisplayRect();
                     float centerX = (displayRect.left + displayRect.right) / 2;
                     float centerY = (displayRect.top + displayRect.bottom) / 2;
                     scale(scaleFactor, centerX, centerY);
-                }else if(canTiltedImageZoomOut()){
-                    Coordinate center = getTiltedImageZoomOutCenter();
-                    scale(scaleFactor, center.x, center.y);
                 }
             }
             return true;
@@ -250,29 +275,29 @@ public class TestImageView extends ImageView {
         }
     };
 
-    private boolean canTiltedImageZoomOut() {
+    private int getFixedAngleCount() {
         adjustDisplayRect();
         int fixedAngleCount = 0;
-        if(displayRect.bottom > getTop() - getBottom() && displayRect.bottom < getTop() - getBottom() + 1){
+        if(displayRect.bottom > getOriginalImageTop() - getOriginalImageBottom() && displayRect.bottom < getOriginalImageTop() - getOriginalImageBottom() + 1){
             fixedAngleCount++;
         }
         if(displayRect.top < 0 && displayRect.top > -1){
             fixedAngleCount++;
         }
-        if(displayRect.right > getRight() - getLeft() && displayRect.right < getRight() - getLeft() + 1){
+        if(displayRect.right > getOriginalImageRight() - getOriginalImageLeft() && displayRect.right < getOriginalImageRight() - getOriginalImageLeft() + 1){
             fixedAngleCount++;
         }
         if(displayRect.left < 0 && displayRect.left > -1){
             fixedAngleCount++;
         }
-        return fixedAngleCount < 2;
+        return fixedAngleCount;
     }
 
     private Coordinate getTiltedImageZoomOutCenter() {
         adjustDisplayRect();
         int tempDegree = currentDegree % 90;
         double tan = Math.tan(tempDegree);
-        if(displayRect.bottom > getTop() - getBottom() && displayRect.bottom < getTop() - getBottom() + 1){
+        if(displayRect.bottom > getOriginalImageTop() - getOriginalImageBottom() && displayRect.bottom < getOriginalImageTop() - getOriginalImageBottom() + 1){
             float x = (float) (displayRect.left + (displayRect.right - displayRect.left) * tan / (1 + tan));
             float y = displayRect.bottom;
             return new Coordinate(x, y);
@@ -282,7 +307,7 @@ public class TestImageView extends ImageView {
             float y = displayRect.top;
             return new Coordinate(x, y);
         }
-        if(displayRect.right > getRight() - getLeft() && displayRect.right < getRight() - getLeft() + 1){
+        if(displayRect.right > getOriginalImageRight() - getOriginalImageLeft() && displayRect.right < getOriginalImageRight() - getOriginalImageLeft() + 1){
             float x = displayRect.right;
             float y = (float) (displayRect.top + (displayRect.bottom - displayRect.top) * 1 / (1 + tan));
             return new Coordinate(x, y);
@@ -309,7 +334,7 @@ public class TestImageView extends ImageView {
     }
 
     private boolean isExpanded() {
-        if(displayRect.bottom - displayRect.top > getBottom() - getTop()){
+        if(displayRect.bottom - displayRect.top > getOriginalImageBottom() - getOriginalImageTop()){
             return true;
         }else{
             return false;
@@ -317,17 +342,18 @@ public class TestImageView extends ImageView {
     }
 
     private boolean hasExceededBounds(Matrix matrix){
-        displayRect.set(0, 0, getDrawable().getIntrinsicWidth(), getDrawable().getIntrinsicHeight());
-        matrix.mapRect(displayRect);
+        RectF rect = new RectF();
+        rect.set(0, 0, getDrawable().getIntrinsicWidth(), getDrawable().getIntrinsicHeight());
+        matrix.mapRect(rect);
+
 //        System.out.println("displayRect.bottom: " + displayRect.bottom);
 //        System.out.println("displayRect.top: " + displayRect.top);
 //        System.out.println("displayRect.left: " + displayRect.left);
 //        System.out.println("displayRect.right: " + displayRect.right);
-        if(displayRect.left > 0 || displayRect.right < getRight() - getLeft()
-                || displayRect.top > 0 || displayRect.bottom < getBottom() - getTop()){
-            return true;
-        }else{
+        if(canDrag(rect)){
             return false;
+        }else{
+            return true;
         }
     }
 
@@ -345,7 +371,7 @@ public class TestImageView extends ImageView {
         lineA.b = new Coordinate(displayRect.left, displayRect.top);
 
         Line lineB = new Line();
-        lineB.a = new Coordinate(getRight() - getLeft(), 0);
+        lineB.a = new Coordinate(getOriginalImageRight() - getOriginalImageLeft(), 0);
         lineB.b = new Coordinate(displayRect.right, displayRect.top);
 
 //        System.out.println("lineA.a.x: " + lineA.a.x + " lineA.a.y " + lineA.a.y);
@@ -356,8 +382,8 @@ public class TestImageView extends ImageView {
 //        System.out.println("Coordinate.distance(lineB.a, lineB.b) " +   Coordinate.distance(lineB.a, lineB.b));
 
         if(Coordinate.distance(lineA.a, lineA.b) < 1 && Coordinate.distance(lineB.a, lineB.b) < 1){
-//            System.out.println("return A: " + (getRight() - getLeft()) / 2 + " " + (getBottom() - getTop()) / 2);
-            return new Coordinate((getRight() - getLeft()) / 2, (getBottom() - getTop()) / 2);
+//            System.out.println("return A: " + (getOriginalImageRight() - getOriginalImageLeft()) / 2 + " " + (getOriginalImageBottom() - getOriginalImageTop()) / 2);
+            return new Coordinate((getOriginalImageRight() - getOriginalImageLeft()) / 2, (getOriginalImageBottom() - getOriginalImageTop()) / 2);
         }
         if(Coordinate.distance(lineA.a, lineA.b) < 1){
 //            System.out.println("return B: " + lineA.a.x + " " + lineA.a.y);
@@ -370,5 +396,20 @@ public class TestImageView extends ImageView {
 //        System.out.println("return D: " + Line.intersection(lineA, lineB).x + " " + Line.intersection(lineA, lineB).y);
         return Line.intersection(lineA, lineB);
     }
+    
+    private int getOriginalImageBottom(){
+        return originalImageBottom;
+    }
 
+    private int getOriginalImageTop(){
+        return originalImageTop;
+    }
+
+    private int getOriginalImageLeft(){
+        return originalImageLeft;
+    }
+
+    private int getOriginalImageRight(){
+        return originalImageRight;
+    }
 }
