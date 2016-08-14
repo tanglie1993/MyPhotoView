@@ -39,6 +39,8 @@ public class TestImageView extends ImageView {
 
     private int imageHeightUpperLimit;
 
+    private float cumulativeScalefactor = 1;
+
     public TestImageView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         init(context);
@@ -81,11 +83,11 @@ public class TestImageView extends ImageView {
         post(new Runnable() {
             @Override
             public void run() {
-                imageHeightUpperLimit = (getOriginalImageBottom() - getOriginalImageTop()) * 3;
                 originalImageBottom = getTop() + getDrawable().getIntrinsicHeight();
                 originalImageTop = getTop();
                 originalImageLeft = getLeft();
                 originalImageRight = getLeft() + getDrawable().getIntrinsicWidth();
+                imageHeightUpperLimit = (getOriginalImageBottom() - getOriginalImageTop()) * 3;
             }
         });
     }
@@ -131,6 +133,11 @@ public class TestImageView extends ImageView {
 
     private void scale(float scaleFactor, float focusX, float focusY) {
 //        System.out.println("scaleFactor: " + scaleFactor + " focuX: " + focusX + "focusY: " + focusY);
+        cumulativeScalefactor *= scaleFactor;
+        if(cumulativeScalefactor < 0.99999){
+            cumulativeScalefactor = 1;
+            return;
+        }
         adjustDisplayRect();
         if(displayRect.bottom - displayRect.top > imageHeightUpperLimit && isExpanding(scaleFactor)){
             return;
