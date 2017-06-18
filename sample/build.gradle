@@ -17,7 +17,6 @@ android {
 }
 
 dependencies {
-    compile project(':library')
     compile 'com.android.support:appcompat-v7:24.1.1'
     compile 'com.android.support:recyclerview-v7:24.1.1'
     compile 'com.squareup.picasso:picasso:2.5.2'

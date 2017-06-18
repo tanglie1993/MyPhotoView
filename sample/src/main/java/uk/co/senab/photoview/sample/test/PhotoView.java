@@ -19,7 +19,7 @@ import uk.co.senab.photoview.sample.test.listener.DefaultOnGestureListener;
 /**
  * Created by Administrator on 2016/8/7 0007.
  */
-public class TestImageView extends ImageView {
+public class PhotoView extends ImageView {
 
     private int originalImageBottom;
     private int originalImageTop;
@@ -41,22 +41,22 @@ public class TestImageView extends ImageView {
 
     private float cumulativeScalefactor = 1;
 
-    public TestImageView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public PhotoView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         init(context);
     }
 
-    public TestImageView(Context context) {
+    public PhotoView(Context context) {
         super(context);
         init(context);
     }
 
-    public TestImageView(Context context, AttributeSet attrs) {
+    public PhotoView(Context context, AttributeSet attrs) {
         super(context, attrs);
         init(context);
     }
 
-    public TestImageView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public PhotoView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(context);
     }
@@ -333,7 +333,7 @@ public class TestImageView extends ImageView {
         Coordinate scaleCenter = getTowardOriginalScaleCenter();
         int centerX = (int) scaleCenter.x;
         int centerY = (int) scaleCenter.y;
-        TestImageView.this.scale(scaleFactor, centerX, centerY);
+        PhotoView.this.scale(scaleFactor, centerX, centerY);
     }
 
     private boolean isExpanding(float scaleFactor) {

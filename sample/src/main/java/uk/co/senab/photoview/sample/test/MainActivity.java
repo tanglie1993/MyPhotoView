@@ -7,7 +7,7 @@ import android.view.MotionEvent;
 import uk.co.senab.photoview.sample.R;
 
 
-public class TestActivity extends Activity {
+public class MainActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
